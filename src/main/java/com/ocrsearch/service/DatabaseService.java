@@ -34,10 +34,6 @@ public class DatabaseService {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
     }
 
-    /**
-     * Inserts a document into the MySQL database.
-     * @return The ID of the inserted document, or -1 if insertion failed or document exists.
-     */
     public int insertDocument(Document doc) {
         String SQL_INSERT = "INSERT INTO documents(filename, text, upload_time, confidence) VALUES (?, ?, ?, ?)";
         int id = -1;
@@ -47,7 +43,7 @@ public class DatabaseService {
 
             pstmt.setString(1, doc.getFilename());
             pstmt.setString(2, doc.getText());
-            // Use ISO standard format for DATETIME in MySQL
+            
             pstmt.setString(3, doc.getUploadTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             pstmt.setDouble(4, doc.getConfidence());
 
@@ -63,7 +59,7 @@ public class DatabaseService {
                 }
             }
         } catch (SQLException e) {
-            if (e.getSQLState().equals("23000")) { // SQLState for Duplicate entry
+            if (e.getSQLState().equals("23000")) { 
                 System.err.println("⚠️ WARNING: Duplicate document found (Filename: " + doc.getFilename() + "). Skipping DB insert.");
             } else {
                 System.err.println("❌ DB Insert Error: " + e.getMessage());
@@ -87,7 +83,7 @@ public class DatabaseService {
                 doc.setText(rs.getString("text"));
                 doc.setConfidence(rs.getDouble("confidence"));
                 
-                // Parse DATETIME
+                
                 Timestamp ts = rs.getTimestamp("upload_time");
                 doc.setUploadTime(ts.toLocalDateTime());
                 
