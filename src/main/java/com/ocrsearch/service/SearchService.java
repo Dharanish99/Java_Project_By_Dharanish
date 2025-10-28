@@ -10,7 +10,7 @@ import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport; // <-- FIX: Corrected import path
+import co.elastic.clients.transport.rest_client.RestClientTransport; 
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 
@@ -41,23 +41,19 @@ public class SearchService {
 
         this.INDEX_NAME = indexName;
         
-        // Create the low-level client (Apache HTTP Client)
-        // Ensure Elasticsearch is running and accessible via HTTP
         RestClient restClient = RestClient.builder(new HttpHost(host, port, "http")).build();
 
-        // Create the transport with a Jackson mapper
+
         ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
 
-        // And create the API client
+
         this.esClient = new ElasticsearchClient(transport);
 
         System.out.println("✅ SearchService initialized. ES Host: " + host + ":" + port);
         setupIndex();
     }
     
-    /**
-     * Ensures the Elasticsearch index exists with the correct mapping.
-     */
+    
     private void setupIndex() {
         try {
             ExistsRequest existsRequest = ExistsRequest.of(e -> e.index(INDEX_NAME));
@@ -66,11 +62,11 @@ public class SearchService {
             if (!exists) {
                 System.out.println("⏳ Elasticsearch index not found. Creating index: " + INDEX_NAME);
 
-                // Define a simple mapping: 'text' field should be searchable.
+                
                 TypeMapping mapping = TypeMapping.of(m -> m
-                    .properties("id", p -> p.keyword(k -> k)) // Use keyword for exact ID matching (not searchable text)
+                    .properties("id", p -> p.keyword(k -> k)) 
                     .properties("filename", p -> p.keyword(k -> k))
-                    .properties("text", p -> p.text(t -> t.analyzer("english"))) // Using 'english' analyzer
+                    .properties("text", p -> p.text(t -> t.analyzer("english"))) 
                     .properties("confidence", p -> p.double_(d -> d))
                     .properties("uploadTime", p -> p.date(d -> d))
                 );
@@ -91,18 +87,14 @@ public class SearchService {
         }
     }
 
-    /**
-     * Indexes a document into Elasticsearch.
-     * @param doc The document to index.
-     * @param dbId The ID from the MySQL database (used as the ES document ID).
-     */
+    
     public void indexDocument(Document doc, int dbId) {
         if (dbId == -1) {
             System.err.println("❌ Cannot index document: Invalid DB ID.");
             return;
         }
         try {
-            // Index the document using the DB ID as the ES document ID
+            
             IndexResponse response = esClient.index(i -> i
                 .index(INDEX_NAME)
                 .id(String.valueOf(dbId))
@@ -120,30 +112,27 @@ public class SearchService {
         }
     }
 
-    /**
-     * Searches for a keyword in the indexed documents.
-     * @param keyword The search term.
-     */
+    
     public void searchDocuments(String keyword) {
         System.out.println("⏳ Searching Elasticsearch for keyword: '" + keyword + "'...");
         try {
             SearchResponse<Document> response = esClient.search(s -> s
                 .index(INDEX_NAME)
                 .query(q -> q
-                    .match(t -> t // Use 'match' query for full-text search
+                    .match(t -> t 
                         .field("text") 
                         .query(keyword)
                     )
                 )
-                .highlight(h -> h // Enable highlighting for snippets
+                .highlight(h -> h 
                     .fields("text", f -> f
-                        .preTags(">>>") // Custom tag for snippet start
-                        .postTags("<<<") // Custom tag for snippet end
+                        .preTags(">>>") 
+                        .postTags("<<<") 
                         .numberOfFragments(1)
                         .fragmentSize(150)
                     )
                 )
-                .size(10), // Limit results to 10
+                .size(10), 
                 Document.class
             );
 
@@ -159,7 +148,7 @@ public class SearchService {
                 String filename = hit.source().getFilename();
                 String snippet = "N/A";
                 
-                // Extract the highlighted snippet
+                
                 if (hit.highlight() != null && hit.highlight().containsKey("text")) {
                     snippet = String.join("...", hit.highlight().get("text"));
                 }
