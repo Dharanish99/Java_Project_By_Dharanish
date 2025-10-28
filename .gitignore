@@ -1,0 +1,20 @@
+/target/
+pom.xml.tag
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Logs
+*.log
+
+# IDE files (e.g., Eclipse, IntelliJ)
+.idea/
+*.iml
+.settings/
+.classpath
+.project
+
+# Configuration Files (containing passwords/secrets)
+# WARNING: Do NOT push sensitive configuration!
+/src/main/resources/application.properties
