@@ -37,12 +37,12 @@ public class Main {
             displayMenu();
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
-                scanner.nextLine(); // consume newline
+                scanner.nextLine(); 
                 processChoice(choice);
             } else {
                 System.out.println("🚫 Invalid input. Please enter a number.");
-                scanner.nextLine(); // consume invalid input
-                choice = 0; // reset choice
+                scanner.nextLine(); 
+                choice = 0; 
             }
         } while (choice != 4);
         System.out.println("\n👋 Exiting system. Goodbye!");
@@ -71,7 +71,6 @@ public class Main {
                 searchDocuments();
                 break;
             case 4:
-                // Handled in run() loop
                 break;
             default:
                 System.out.println("🚫 Invalid choice. Please select a valid option (1-4).");
@@ -83,7 +82,7 @@ public class Main {
         String filePath = scanner.nextLine().trim();
 
         try {
-            // 1. OCR Processing
+            
             String[] ocrResult = ocrService.performOCR(filePath);
             String extractedText = ocrResult[0];
             double confidence = Double.parseDouble(ocrResult[1]);
@@ -101,10 +100,10 @@ public class Main {
             System.out.printf("Confidence Score: %.2f%%\n", confidence);
             System.out.println("--------------------------");
 
-            // 2. Database Storage
+            
             int dbId = dbService.insertDocument(doc);
 
-            // 3. Elasticsearch Indexing
+            
             if (dbId != -1) {
                 searchService.indexDocument(doc, dbId);
             }
