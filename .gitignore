@@ -1,4 +1,5 @@
 /target/
+/bin/
 pom.xml.tag
 pom.xml.versionsBackup
 pom.xml.next
